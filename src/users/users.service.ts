@@ -7,13 +7,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(
+ constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const existingUser = await this.usersRepository.findOne({
+    const existingUser = await this.userRepository.findOne({
       where: { email: createUserDto.email }
     });
 
@@ -21,32 +21,32 @@ export class UsersService {
       throw new ConflictException('Un utilisateur avec cet email existe déjà');
     }
 
-    const user = this.usersRepository.create({
-      Name: createUserDto.name,
+    const user = this.userRepository.create({
+      name: createUserDto.name,
       email: createUserDto.email,
       telephone: createUserDto.telephone,
     });
 
-    return await this.usersRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+    return await this.userRepository.find();
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
       throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
     }
 
     if (updateUserDto.name !== undefined) {
-      user.Name = updateUserDto.name;
+      user.name = updateUserDto.name;
     }
 
     if (updateUserDto.email !== undefined) {
-      const existingUser = await this.usersRepository.findOne({
+      const existingUser = await this.userRepository.findOne({
         where: { email: updateUserDto.email }
       });
 
@@ -60,6 +60,6 @@ export class UsersService {
       user.telephone = updateUserDto.telephone;
     }
 
-    return await this.usersRepository.save(user);
+    return await this.userRepository.save(user);
   }
 }
